@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Live audio analysis in javascript!</title>
+		<script src="http://code.jquery.com/jquery-2.0.0.min.js"></script>
+		<script type="text/javascript" src="audio_analysis.js"></script>
+		<style type="text/css">
+			div {
+				padding: 0.5em;
+				margin: 1em;
+				box-shadow: 0 0 3px 3px;
+				text-size: small;
+			}
+			.waveform { width: 0%; }
+			#a { text-align: center; height: 10em; }
+			#b { background-color: black; }
+			#beat-container { background-color: black; }
+		</style>
+	</head>
+	<body>
+		<input type="file" name="selected_file" id="sf"/>
+		<audio controls></audio>
+		<div id="beat-container"><div id="a"></div></div>
+		<div id="b">
+			<div class="waveform"></div>
+			<div class="waveform"></div>
+			<div class="waveform"></div>
+			<div class="waveform"></div>
+			<div class="waveform"></div>
+			<div class="waveform"></div>
+			<div class="waveform"></div>
+			<div class="waveform"></div>
+		</div>
+	</body>
+</html>
