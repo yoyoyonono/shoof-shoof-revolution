@@ -184,7 +184,7 @@ onBeat: function() { make_button(silent[0].currentTime - audible[0].currentTime,
 
 	function hit_behavior(offset, element) {
 		$(element).remove();
-		score += hit_bonus*(hit_zone_width - Math.abs(offset))/hit_zone_width; $('#score').html(score);
+		score += hit_bonus*(hit_zone_width - Math.abs(offset))/hit_zone_width; $('#score').html(Math.floor(score*10)/10);
 		hits += 1; $('#hits').html(hits);
 	}
 	var ouch_timeout_id = 0;
