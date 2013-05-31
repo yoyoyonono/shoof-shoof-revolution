@@ -70,7 +70,12 @@ $(document).ready(function() {
 			}
 		}
 	);
-	$('.ta').click(function (evt) {
+	$('.state.ready').click(function() {
+		if (active) { toggle_pause_game(); }
+		else { start_game(); }
+	});
+	$('.ta').on('touch click', function () {
+		$('#report').append('WHAT ');
 		if (active && !paused) { get_input(this.id.slice(-1)); };
 	});
 
