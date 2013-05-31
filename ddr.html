@@ -6,6 +6,10 @@
 		<script src="utility.js"></script>
 		<script src="audio_analysis.js"></script>
 		<script type="text/javascript">
+
+var fog_birth_chance = 0.5;
+var fog_death_chance = 0.1;
+var fog_width = 2;
 $(document).ready(function() {
 	var svg_ns = "http://www.w3.org/2000/svg";
 	var xlink_ns = "http://www.w3.org/1999/xlink";
@@ -33,6 +37,13 @@ $(document).ready(function() {
 		$('#scrollers').append($(butt));
 		return butt;
 	}
+	function make_ghost (track, x, y) {
+		var ghost = ns_elem('use', svg_ns,
+				{'xlink:href': '#button' + track}, xlink_ns,
+				{'x': x, 'y': y, 'class': 'ghost bu track' + track});
+		$('#fog').append($(ghost));
+		return ghost;
+	}
 
 	/* For debug purposes * /
 	var zone = document.createElementNS(svg_ns, 'polygon');
@@ -42,6 +53,7 @@ $(document).ready(function() {
 	$('#arena').append(zone);
 	/* */
 
+	// Set up inputs
 	$(document).keydown(
 		function (evt) {
 			if (ready_to_start && evt.which == 32) {
@@ -58,6 +70,9 @@ $(document).ready(function() {
 			}
 		}
 	);
+	$('.ta').click(function (evt) {
+		if (active && !paused) { get_input(this.id.slice(-1)); };
+	});
 
 	$('#generate-random').click(set_up_game_from_random);
 
@@ -171,15 +186,25 @@ onBeat: function() { make_button(silent[0].currentTime - audible[0].currentTime,
 
 	function tick_element (element, milliseconds) {
 		var y_position = parseFloat($(element).attr('y'));
+		var x_position = parseFloat($(element).attr('x'));
+
+		if (Math.random() < fog_birth_chance && (y_position > -20)) {
+			make_ghost((x_position / 20) - 1, x_position + (Math.random()*2 - 1)*fog_width, y_position + (2*Math.random() - 1)*fog_width);
+		}
+
 		if (y_position > cutoff) {
 			ouch_behavior();
 			$(element).remove();
 		}
 		$(element).attr('y', y_position + (speed * milliseconds/1000)); 
 	}
+	function tick_fog (element, milliseconds) {
+		if (Math.random() < fog_death_chance || parseFloat($(element).attr('y')) > 100 ) { $(element).remove(); }
+	}
 	function tick (milliseconds) {
 		$('#scrollers').children().each(function() { tick_element(this, milliseconds); } );
-		if (randomly_generated && ($('#scrollers').children().length == 0)) { game_end(); }
+		$('#fog').children().each(function() { tick_fog(this, milliseconds); } );
+		if (randomly_generated && ($('#scrollers').children().length == 0) && ($('#fog').children().length == 0)) { game_end(); }
 	}
 
 	function hit_behavior(offset, element) {
@@ -265,11 +290,17 @@ onBeat: function() { make_button(silent[0].currentTime - audible[0].currentTime,
 				stroke-width: 1;
 				stroke: black;
 				fill: rgba(255, 0, 0, 0.5);
+				z-index: 10;
 			}
 			polyline.bu, .bu {
 				fill: red;
 				stroke: black;
 				stroke-width: 1;
+				pointer-events: none;
+			}
+			polyline.ghost, .ghost {
+				opacity: 0.2;
+				pointer-events: none;
 			}
 			polygon.debug {
 				fill: rgba(0,0,255,0.7);
@@ -304,8 +335,6 @@ onBeat: function() { make_button(silent[0].currentTime - audible[0].currentTime,
 		</div>
 		<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="600px" width="25%" viewBox="0 0 100 100" preserveAspectRatio="xMidYMax" id="arena">
 			<defs>
-				<circle r="5" class="bu" id="button"></circle>
-				<circle r="5" class="ta" id="target"></circle>
 				<polyline points="-1,-10 1,-10 3,-8 3,8 11,0 13,0 15,2 15,4 1,18 -1,18" 
 				transform="scale(0.5 0.5) translate(0 -4)" id="half_arrow" />
 				<g id="arrow" transform="rotate(90 0 0)">
@@ -330,8 +359,8 @@ onBeat: function() { make_button(silent[0].currentTime - audible[0].currentTime,
 			<g transform="translate(50 50)">
 				<use xlink:href="#ouch" id="owie" />
 			</g>
-			<g id="scrollers">
-			</g>
+			<g id="scrollers"></g>
+			<g id="fog"></g>
 		</svg>
 	</body>
 </html>
